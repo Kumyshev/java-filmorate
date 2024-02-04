@@ -1,6 +1,4 @@
 package ru.yandex.practicum.filmorate.controller;
-
-import java.time.LocalDate;
 import java.util.*;
 
 import javax.validation.Valid;
@@ -27,7 +25,7 @@ public class UserController {
 
     @PostMapping("/users")
     public User postUser(@Valid @RequestBody User user) {
-        if (user.getLogin().contains(" ") || user.getBirthday().isAfter(LocalDate.now()))
+        if (user.getLogin().contains(" "))
             throw new ValidationException();
         if (user.getName() == null || user.getName().isBlank())
             user.setName(user.getLogin());
@@ -39,9 +37,11 @@ public class UserController {
 
     @PutMapping("/users")
     public User putUser(@Valid @RequestBody User user) {
-        if (!map.containsKey(user.getId()))
+        if (map.get(user.getId()) == null)
             throw new ValidationException();
         var item = map.get(user.getId());
+        if (user.getName() == null || user.getName().isBlank())
+            user.setName(user.getLogin());
         item.setName(user.getName());
         item.setEmail(user.getEmail());
         item.setLogin(user.getLogin());
