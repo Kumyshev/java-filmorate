@@ -1,57 +1,67 @@
 package ru.yandex.practicum.filmorate.controller;
+
 import java.util.*;
 
 import javax.validation.Valid;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
-import ru.yandex.practicum.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @Slf4j
 public class UserController {
-    private final Map<Integer, User> map = new HashMap<>();
+
+    @Autowired
+    UserService service;
 
     @GetMapping("/users")
     public Collection<User> getAll() {
-        log.info("Текущее количество пользователей: {}", map.values().size());
-        return map.values();
+        log.info("Текущее количество пользователей: {}", service.get().size());
+        return service.get();
+    }
+
+    @GetMapping("/users/{id}")
+    public User getUser(@PathVariable Integer id) {
+        return service.get(id);
+    }
+
+    @GetMapping("/users/{id}/friends")
+    public Collection<User> getUserFriends(@PathVariable Integer id) {
+        return service.getFriends(id);
+    }
+
+    @GetMapping("/users/{id}/friends/common/{otherId}")
+    public Collection<User> getUnionFriends(@PathVariable("id") Integer id, @PathVariable("otherId") Integer otherId) {
+        return service.getUnionFriends(id, otherId);
     }
 
     @PostMapping("/users")
     public User postUser(@Valid @RequestBody User user) {
-        if (user.getLogin().contains(" "))
-            throw new ValidationException();
-        if (user.getName() == null || user.getName().isBlank())
-            user.setName(user.getLogin());
-        if (user.getId() == 0)
-            user.setId(idGenerated());
-        map.put(user.getId(), user);
-        return user;
+        return service.post(user);
     }
 
     @PutMapping("/users")
     public User putUser(@Valid @RequestBody User user) {
-        if (map.get(user.getId()) == null)
-            throw new ValidationException();
-        var item = map.get(user.getId());
-        if (user.getName() == null || user.getName().isBlank())
-            user.setName(user.getLogin());
-        item.setName(user.getName());
-        item.setEmail(user.getEmail());
-        item.setLogin(user.getLogin());
-        item.setBirthday(user.getBirthday());
-        map.put(item.getId(), item);
-        return item;
+        return service.put(user.getId(), user);
     }
 
-    int idGenerated() {
-        var value = map.size();
-        return ++value;
+    @PutMapping("/users/{id}/friends/{friendId}")
+    public User putFriend(@PathVariable("id") Integer id, @PathVariable("friendId") Integer friendId) {
+        return service.putFriend(id, friendId);
+    }
+
+    @DeleteMapping("/users/{id}/friends/{friendId}")
+    public void deleteFriend(@PathVariable("id") Integer id, @PathVariable("friendId") Integer friendId) {
+        service.deleteFriend(id, friendId);
     }
 }
