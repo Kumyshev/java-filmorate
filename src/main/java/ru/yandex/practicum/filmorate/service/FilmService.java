@@ -53,14 +53,14 @@ public class FilmService {
             throw new NotFoundException("id");
         if (film.getReleaseDate().isBefore(minReleaseDate()))
             throw new ValidationException();
-        var _film = filmStorage.get(id);
-        _film.setName(film.getName());
-        _film.setDescription(film.getDescription());
-        _film.setReleaseDate(film.getReleaseDate());
-        _film.setDuration(film.getDuration());
-        _film.setLike(film.getLike());
-        filmStorage.put(_film);
-        return _film;
+        var updatedFilm = filmStorage.get(id);
+        updatedFilm.setName(film.getName());
+        updatedFilm.setDescription(film.getDescription());
+        updatedFilm.setReleaseDate(film.getReleaseDate());
+        updatedFilm.setDuration(film.getDuration());
+        updatedFilm.setLike(film.getLike());
+        filmStorage.put(updatedFilm);
+        return updatedFilm;
     }
 
     public Film putLike(Integer id, Integer userId) {

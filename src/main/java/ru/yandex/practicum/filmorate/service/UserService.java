@@ -65,15 +65,15 @@ public class UserService {
     public User put(Integer id, User user) {
         if (!userStorage.get().contains(userStorage.get(id)))
             throw new NotFoundException("id");
-        var _user = userStorage.get(id);
+        var updatedUser = userStorage.get(id);
         if (user.getName() == null || user.getName().isBlank())
             user.setName(user.getLogin());
-        _user.setName(user.getName());
-        _user.setEmail(user.getEmail());
-        _user.setLogin(user.getLogin());
-        _user.setBirthday(user.getBirthday());
-        _user.setFriends(user.getFriends());
-        userStorage.put(_user);
+        updatedUser.setName(user.getName());
+        updatedUser.setEmail(user.getEmail());
+        updatedUser.setLogin(user.getLogin());
+        updatedUser.setBirthday(user.getBirthday());
+        updatedUser.setFriends(user.getFriends());
+        userStorage.put(updatedUser);
         return user;
     }
 
@@ -82,13 +82,13 @@ public class UserService {
             throw new NotFoundException("id");
         if (!userStorage.get().contains(userStorage.get(friendId)))
             throw new NotFoundException("friendId");
-        var _user = userStorage.get(id);
-        var _userFriend = userStorage.get(friendId);
-        _user.getFriends().add(friendId);
-        _userFriend.getFriends().add(id);
-        userStorage.put(_user);
-        userStorage.put(_userFriend);
-        return _user;
+        var updatedUser = userStorage.get(id);
+        var updatedUserFriend = userStorage.get(friendId);
+        updatedUser.getFriends().add(friendId);
+        updatedUserFriend.getFriends().add(id);
+        userStorage.put(updatedUser);
+        userStorage.put(updatedUserFriend);
+        return updatedUser;
     }
 
     public void deleteFriend(Integer id, Integer friendId) {
@@ -96,12 +96,12 @@ public class UserService {
             throw new NotFoundException("id");
         if (!userStorage.get().contains(userStorage.get(friendId)))
             throw new NotFoundException("friendId");
-        var _user = userStorage.get(id);
-        var _userFriend = userStorage.get(friendId);
-        _user.getFriends().remove(friendId);
-        _userFriend.getFriends().remove(id);
-        userStorage.put(_user);
-        userStorage.put(_userFriend);
+        var updatedUser = userStorage.get(id);
+        var updatedUserFriend = userStorage.get(friendId);
+        updatedUser.getFriends().remove(friendId);
+        updatedUserFriend.getFriends().remove(id);
+        userStorage.put(updatedUser);
+        userStorage.put(updatedUserFriend);
     }
 
     int idGenerated() {
