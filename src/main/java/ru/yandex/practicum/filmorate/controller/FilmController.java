@@ -27,8 +27,9 @@ public class FilmController {
 
     @GetMapping("/films")
     public Collection<Film> getAll() {
-        log.info("Текущее количество фильмов: {}", service.get().size());
-        return service.get();
+        var films = service.get();
+        log.info("Текущее количество фильмов: {}", films.size());
+        return films;
     }
 
     @GetMapping("/films/{id}")
@@ -38,7 +39,7 @@ public class FilmController {
 
     @GetMapping("/films/popular")
     public Collection<Film> getPopularFilms(
-            @RequestParam(value = "count", defaultValue = "10", required = false) Integer count) {
+            @RequestParam(value = "count", defaultValue = "10") Integer count) {
         return service.getPopularFilms(count);
     }
 
@@ -50,17 +51,17 @@ public class FilmController {
 
     @PutMapping("/films")
     public Film putFilm(@Valid @RequestBody Film film) {
-        service.put(film.getId(), film);
+        service.put(film);
         return film;
     }
 
     @PutMapping("/films/{id}/like/{userId}")
-    public Film putFriend(@PathVariable("id") Integer id, @PathVariable("userId") Integer userId) {
+    public Film putLike(@PathVariable("id") Integer id, @PathVariable("userId") Integer userId) {
         return service.putLike(id, userId);
     }
 
     @DeleteMapping("/films/{id}/like/{userId}")
-    public void deleteFriend(@PathVariable("id") Integer id, @PathVariable("userId") Integer userId) {
+    public void deleteLike(@PathVariable("id") Integer id, @PathVariable("userId") Integer userId) {
         service.deleteLike(id, userId);
     }
 }

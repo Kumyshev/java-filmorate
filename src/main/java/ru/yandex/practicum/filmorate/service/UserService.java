@@ -23,29 +23,32 @@ public class UserService {
     }
 
     public User get(Integer id) {
-        if (!userStorage.get().contains(userStorage.get(id)))
-            throw new NotFoundException("id");
+        User user = userStorage.get(id);
+        if (user == null)
+            throw new NotFoundException("userId");
         return userStorage.get(id);
     }
 
     public Collection<User> getFriends(Integer id) {
-        if (!userStorage.get().contains(userStorage.get(id)))
-            throw new NotFoundException("id");
         User user = userStorage.get(id);
+        if (user == null)
+            throw new NotFoundException("userId");
         var list = userStorage.get().stream().filter(u -> user.getFriends().contains(u.getId()))
                 .collect(Collectors.toList());
         return list;
     }
 
     public Collection<User> getUnionFriends(Integer id, Integer otherId) {
-        if (!userStorage.get().contains(userStorage.get(id)))
-            throw new NotFoundException("id");
-        if (!userStorage.get().contains(userStorage.get(otherId)))
+        User user = userStorage.get(id);
+        if (user == null)
+            throw new NotFoundException("userId");
+        User other = userStorage.get(otherId);
+        if (other == null)
             throw new NotFoundException("otherId");
-        var user = userStorage.get(id).getFriends();
-        var otherUser = userStorage.get(otherId).getFriends();
-        var unionFriends = new HashSet<>(user);
-        unionFriends.retainAll(otherUser);
+        var userFriends = user.getFriends();
+        var otherFriends = other.getFriends();
+        var unionFriends = new HashSet<>(userFriends);
+        unionFriends.retainAll(otherFriends);
         var list = userStorage.get().stream().filter(u -> unionFriends.contains(u.getId()))
                 .collect(Collectors.toList());
         return list;
@@ -56,16 +59,14 @@ public class UserService {
             throw new ValidationException();
         if (user.getName() == null || user.getName().isBlank())
             user.setName(user.getLogin());
-        if (user.getId() == 0)
-            user.setId(idGenerated());
         userStorage.post(user);
         return user;
     }
 
-    public User put(Integer id, User user) {
-        if (!userStorage.get().contains(userStorage.get(id)))
-            throw new NotFoundException("id");
-        var updatedUser = userStorage.get(id);
+    public User put(User user) {
+        var updatedUser = userStorage.get(user.getId());
+        if (updatedUser == null)
+            throw new NotFoundException("userId");
         if (user.getName() == null || user.getName().isBlank())
             user.setName(user.getLogin());
         updatedUser.setName(user.getName());
@@ -78,34 +79,29 @@ public class UserService {
     }
 
     public User putFriend(Integer id, Integer friendId) {
-        if (!userStorage.get().contains(userStorage.get(id)))
-            throw new NotFoundException("id");
-        if (!userStorage.get().contains(userStorage.get(friendId)))
+        User user = userStorage.get(id);
+        if (user == null)
+            throw new NotFoundException("userId");
+        User friend = userStorage.get(friendId);
+        if (friend == null)
             throw new NotFoundException("friendId");
-        var updatedUser = userStorage.get(id);
-        var updatedUserFriend = userStorage.get(friendId);
-        updatedUser.getFriends().add(friendId);
-        updatedUserFriend.getFriends().add(id);
-        userStorage.put(updatedUser);
-        userStorage.put(updatedUserFriend);
-        return updatedUser;
+        user.getFriends().add(friendId);
+        friend.getFriends().add(id);
+        userStorage.put(user);
+        userStorage.put(friend);
+        return user;
     }
 
     public void deleteFriend(Integer id, Integer friendId) {
-        if (!userStorage.get().contains(userStorage.get(id)))
-            throw new NotFoundException("id");
-        if (!userStorage.get().contains(userStorage.get(friendId)))
+        User user = userStorage.get(id);
+        if (user == null)
+            throw new NotFoundException("userId");
+        User friend = userStorage.get(friendId);
+        if (friend == null)
             throw new NotFoundException("friendId");
-        var updatedUser = userStorage.get(id);
-        var updatedUserFriend = userStorage.get(friendId);
-        updatedUser.getFriends().remove(friendId);
-        updatedUserFriend.getFriends().remove(id);
-        userStorage.put(updatedUser);
-        userStorage.put(updatedUserFriend);
-    }
-
-    int idGenerated() {
-        var value = userStorage.get().size();
-        return ++value;
+        user.getFriends().remove(friendId);
+        friend.getFriends().remove(id);
+        userStorage.put(user);
+        userStorage.put(friend);
     }
 }

@@ -26,8 +26,9 @@ public class UserController {
 
     @GetMapping("/users")
     public Collection<User> getAll() {
-        log.info("Текущее количество пользователей: {}", service.get().size());
-        return service.get();
+        var users = service.get();
+        log.info("Текущее количество пользователей: {}", users.size());
+        return users;
     }
 
     @GetMapping("/users/{id}")
@@ -52,7 +53,7 @@ public class UserController {
 
     @PutMapping("/users")
     public User putUser(@Valid @RequestBody User user) {
-        return service.put(user.getId(), user);
+        return service.put(user);
     }
 
     @PutMapping("/users/{id}/friends/{friendId}")

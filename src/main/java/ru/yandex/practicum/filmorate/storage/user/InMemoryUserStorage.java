@@ -27,11 +27,18 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User post(User user) {
+        if (user.getId() == 0)
+            user.setId(idGenerated());
         return users.put(user.getId(), user);
     }
 
     @Override
     public User put(User user) {
         return users.put(user.getId(), user);
+    }
+
+    int idGenerated() {
+        var value = users.size();
+        return ++value;
     }
 }
